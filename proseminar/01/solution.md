@@ -1,4 +1,4 @@
-# Excersice 1
+# Exercise 1
 
 
 ## Study how to submit jobs in SGE, how to check their state and how to cancel them.
