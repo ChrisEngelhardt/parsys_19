@@ -79,3 +79,125 @@ number-of-slots: Number of hosts
 1. Write execution script.
 2. Load within the script openmpi with ```module load openmpi/4.0.1``` (sets up the openmpi environment)
 3. Execute programm with ```mpiexec -n 8 COMMAND```
+4. 
+
+# Exercise 2
+
+## Compile micro benchmarks:
+```
+module load openmpi/4.0.1
+./configure CC=mpicc CXX=mpic++
+make
+```
+
+## osu_latency
+
+### Script
+```
+#!/bin/bash
+
+# Execute job in the queue "std.q" unless you have special requirements.
+#$ -q std.q
+
+# The batch system should use the current directory as working directory.
+#$ -cwd
+
+# Name your job. Unless you use the -o and -e options, output will
+# go to a unique file name.ojob_id for each job.
+#$ -N my_test_job
+
+# Redirect output stream to this file.
+#$ -o output.dat
+
+# Join the error stream to the output stream.
+#$ -j yes
+
+#$ -pe openmpi-1perhost 2
+
+module load openmpi/4.0.1
+mpiexec  ./osu_latency
+```
+
+### Table
+
+| Size  |        Latency (us) |
+| -------- | --------- |
+| 0       |                3.48 |
+| 1       |                3.55 |
+| 2       |                3.55 |
+| 4       |                3.55 |
+| 8       |                3.61 |
+| 16      |                3.64 |
+| 32      |                3.67 |
+| 64      |                3.84 |
+| 128     |                4.84 |
+| 256     |                5.34 |
+| 512     |                6.11 |
+| 1024    |                7.36 |
+| 2048    |                9.85 |
+ | 4096    |               12.54 |
+| 8192    |               18.52 |
+| 16384   |               26.23 |
+| 32768   |               36.73 |
+| 65536   |               57.69 |
+| 131072  |              100.54 |
+| 262144  |              187.25 |
+| 524288  |              358.13 |
+| 1048576 |              699.15 |
+| 2097152 |             1379.14 |
+
+## osu_bw
+
+### Scripts
+```
+#!/bin/bash
+
+# Execute job in the queue "std.q" unless you have special requirements.
+#$ -q std.q
+
+# The batch system should use the current directory as working directory.
+#$ -cwd
+
+# Name your job. Unless you use the -o and -e options, output will
+# go to a unique file name.ojob_id for each job.
+#$ -N my_test_job
+
+# Redirect output stream to this file.
+#$ -o output.dat
+
+# Join the error stream to the output stream.
+#$ -j yes
+
+#$ -pe openmpi-1perhost 2
+
+module load openmpi/4.0.1
+mpiexec  ./osu_bw
+```
+
+### Table
+
+| Size |     Bandwidth (MB/s) |
+| -------- | --------- |
+| 1          |              0.63 |
+| 2          |             1.27 |
+| 4          |             2.55 |
+| 8          |             5.11 |
+| 16         |            10.25 |
+| 32         |            20.50 |
+| 64         |            40.64 |
+| 128        |            76.99 |
+| 256        |           155.06 |
+| 512        |           289.16 |
+| 1024       |           535.02 |
+| 2048       |           752.76 |
+| 4096       |           925.47 |
+| 8192       |          1064.18 |
+| 16384      |          1106.46 |
+| 32768      |          1305.53 |
+| 65536      |          1422.83 |
+| 131072     |          1483.06 |
+| 262144     |          1501.27 |
+| 524288     |          1518.66 |
+| 1048576    |          1528.19 |
+| 2097152    |          1525.28 |
+| 4194304    |          1530.54 |
