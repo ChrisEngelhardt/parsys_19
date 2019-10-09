@@ -47,9 +47,15 @@ What are possible settings of these parameters, and what effect do they have?
 * ```short.q```: or small test jobs. Limited number of CPU slots. Default/maximum runtime: 10 hours.
 * ```bigmem.q```: Leo3e only. Jobs with high main memory requirements. Will run on the nodes equipped with 512GB of memory. Default/maximum runtime: 240 hours.
 
+**Why**: Basic configurations needed for the SGE to select right queue necessery for the job.
+
 2. ```-cwd```: execute job in current working directory. If you omit this option, you job will execute in $HOME, which is usually a bad idea. Input/output file names are relative to this directory.
 
+**Why**: Basic configurations needed to define correct working directory.
+
 3. ```-t 1-n```: Trivial parallelisation using a job array. Start n independent instances of your job (e.g. for extensive parameter studies). When the job is run, you use the environment variable $SGE_TASK_ID, which is set to a unique integer value from 1 .. n, to distinguish between the individual job instances (e.g. to initialize a random number generator, select an input file or compute parameter values).
+
+**Why**: Simple way to call a programm with different settings e.g. see how parameters will affect the result or performance.
 
 
 4. ```-pe parallel-environment number-of-slots```: If you run parallelized programs (MPI or shared memory), you need to specify a parallel environment and the number of processes/threads (= SGE slots) on which your parallel (MPI/OpenMP) application should run. By selecting a parallel environment you can also control how jobs are distributed across nodes.
@@ -58,9 +64,15 @@ parallel-environment:
 * openmpi-2perhost
 * openmpi-4perhost
 * openmpi-8perhost
-number-of-slots: Number of host
+
+number-of-slots: Number of hosts
+
+**Why**: Basic configuration needed to define how much computational power we need or want to work with.
 
 5. ```qsh -now n [...]```: The submission of interactive jobs is useful in situations where a job requires some sort of direct intervention. This is usually the case for X-Windows applications or in situations in which further processing depends on your interpretation of immediate results. A typical example for both of these cases is a graphical debugging session.
+
+**Why**: Sometimes its necessary e.g. to debug.
+
 
 
 ## How do you run your program in parallel? What environment setup is required?
