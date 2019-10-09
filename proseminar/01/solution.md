@@ -8,7 +8,7 @@
 2. Submit job ```qsub name_of_script```
 
 ### Check the state
-```qstat````
+```qstat```
 
 ### Cancel
 ```qdel job_id_list```
@@ -60,7 +60,7 @@ parallel-environment:
 * openmpi-8perhost
 number-of-slots: Number of host
 
-5. ```qsh -now n [...]``: The submission of interactive jobs is useful in situations where a job requires some sort of direct intervention. This is usually the case for X-Windows applications or in situations in which further processing depends on your interpretation of immediate results. A typical example for both of these cases is a graphical debugging session.
+5. ```qsh -now n [...]```: The submission of interactive jobs is useful in situations where a job requires some sort of direct intervention. This is usually the case for X-Windows applications or in situations in which further processing depends on your interpretation of immediate results. A typical example for both of these cases is a graphical debugging session.
 
 
 ## How do you run your program in parallel? What environment setup is required?
