@@ -18,9 +18,9 @@ def getDataFromFile(file):
 	return size, latency
 	
 	
-#sockets = getDataFromFile("/Users/chris/Desktop/benchmarks/latency/2sockets")
-cores = getDataFromFile("/Users/chris/Desktop/benchmarks/latency/2cores")
-hosts = getDataFromFile("/Users/chris/Desktop/benchmarks/latency/2hosts")
+sockets = getDataFromFile("latency/2sockets")
+cores = getDataFromFile("latency/2cores")
+hosts = getDataFromFile("latency/2hosts")
 
 plt.xlim(0, 10000000/1.7)
 
@@ -28,7 +28,7 @@ plt.xlabel('Package size')
 plt.ylabel('time in us')
 plt.plot(hosts[0], hosts[1], label = '2 hosts')
 plt.plot(cores[0], cores[1], label = '2 cores')
-#plt.plot(sockets[0], sockets[1], label = '2 sockets')
+plt.plot(sockets[0], sockets[1], label = '2 sockets')
 plt.legend()
-plt.show()
-#plt.savefig('books_read.png')
+#plt.show()
+plt.savefig('latencyTest.png')

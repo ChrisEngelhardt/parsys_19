@@ -120,6 +120,8 @@ mpiexec  ./osu_latency
 
 ### Table
 
+Executed on two different hosts with 1 core
+
 | Size  |        Latency (us) |
 | -------- | --------- |
 | 0       |                3.48 |
@@ -175,6 +177,8 @@ mpiexec  ./osu_bw
 ```
 
 ### Table
+
+Executed on two different hosts with 1 core
 
 | Size |     Bandwidth (MB/s) |
 | -------- | --------- |
