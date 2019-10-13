@@ -79,7 +79,7 @@ number-of-slots: Number of hosts
 1. Write execution script.
 2. Load within the script openmpi with ```module load openmpi/4.0.1``` (sets up the openmpi environment)
 3. Execute programm with ```mpiexec -n 8 COMMAND```
-4. 
+4. Submit job with qsub JOBNAME 
 
 # Exercise 2
 
@@ -137,7 +137,7 @@ Executed on two different hosts with 1 core
 | 512     |                6.11 |
 | 1024    |                7.36 |
 | 2048    |                9.85 |
- | 4096    |               12.54 |
+| 4096    |               12.54 |
 | 8192    |               18.52 |
 | 16384   |               26.23 |
 | 32768   |               36.73 |
@@ -147,6 +147,13 @@ Executed on two different hosts with 1 core
 | 524288  |              358.13 |
 | 1048576 |              699.15 |
 | 2097152 |             1379.14 |
+
+### Results
+![Latency Test](task2/latencyTest.png)
+TODO
+
+
+
 
 ## osu_bw
 
@@ -205,3 +212,14 @@ Executed on two different hosts with 1 core
 | 1048576    |          1528.19 |
 | 2097152    |          1525.28 |
 | 4194304    |          1530.54 |
+
+
+
+### Results
+![Bandwith test](task2/bandwidthTest.png)
+TODO
+
+
+## How stable are the measurements when running the experiments multiple times?
+TODO
+
