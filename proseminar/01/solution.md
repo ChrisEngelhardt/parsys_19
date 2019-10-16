@@ -192,6 +192,7 @@ Executed on two different hosts with 1 core
 | 524288  |              358.13 |
 | 1048576 |              699.15 |
 | 2097152 |             1379.14 |
+| 4194304 |             2741.18 |
 
 ### Results
 ![Latency Test](task2/latencyTest.png)
