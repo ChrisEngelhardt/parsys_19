@@ -195,7 +195,8 @@ Executed on two different hosts with 1 core
 
 ### Results
 ![Latency Test](task2/latencyTest.png)
-TODO
+Sockets and Cores have nearly the same performance until the package size of approx. 1048576.
+Using different hosts has the worst performance due to network latencys.
 
 
 
@@ -230,7 +231,7 @@ mpiexec -n 2 ./osu_bw
 
 ### Table
 
-Executed on two different hosts with 1 core
+Executed on two different hosts
 
 | Size |     Bandwidth (MB/s) |
 | -------- | --------- |
@@ -262,9 +263,10 @@ Executed on two different hosts with 1 core
 
 ### Results
 ![Bandwith test](task2/bandwidthTest.png)
-TODO
+Sockets and cores have nearly the same bandwitdh, which drops at a size of approx. 2097152.
+Only the 2 different hosts have a much worser overall performance due to their slower interconnection (over network).
+
 
 
 ## How stable are the measurements when running the experiments multiple times?
-TODO
-
+Executing the same benchmarks multiple times results in a more or less equivalent result (around ± 5%).
