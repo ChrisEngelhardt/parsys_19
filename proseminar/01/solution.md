@@ -120,7 +120,8 @@ n001: flags=0x11 slots=2 max_slots=0 slots_inuse=0 state=UP
      Process OMPI jobid: [11610,1] App: 0 Process rank: 1 Bound: socket 1[core 4[hwt 0]]./././.][B/././.]
 ```
 
-###  Same Socket different cores
+###  Same Socket different cores ======================   ALLOCATED NODES   ======================
+
 ```
 n001: flags=0x11 slots=2 max_slots=0 slots_inuse=0 state=UP
 =================================================================
@@ -158,7 +159,7 @@ n001: flags=0x11 slots=2 max_slots=0 slots_inuse=0 state=UP
 #$ -pe openmpi-1perhost 2
 
 module load openmpi/4.0.1
-mpiexec  ./osu_latency
+mpiexec -n 2 ./osu_latency
 ```
 
 ### Table
@@ -223,7 +224,7 @@ TODO
 #$ -pe openmpi-1perhost 2
 
 module load openmpi/4.0.1
-mpiexec  ./osu_bw
+mpiexec -n 2 ./osu_bw
 ```
 
 ### Table
