@@ -16,7 +16,7 @@
 # Join the error stream to the output stream.
 #$ -j yes
 
-#$ -pe openmp 2
+#$ -pe openmpi-2perhost 2
 
 module load openmpi/4.0.1
-mpiexec  ./osu_bw
+mpiexec --display-map --display-allocation -n 2 --map-by ppr:2:socket ./osu_bw

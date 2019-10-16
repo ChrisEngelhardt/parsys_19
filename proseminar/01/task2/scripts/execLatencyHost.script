@@ -19,4 +19,4 @@
 #$ -pe openmpi-1perhost	2
 
 module load openmpi/4.0.1
-mpiexec  ./osu_latency
+mpiexec --display-map --display-allocation -n 2 ./osu_latency

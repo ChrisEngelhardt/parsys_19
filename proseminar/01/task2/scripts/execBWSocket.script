@@ -19,4 +19,4 @@
 #$ -pe openmpi-2perhost	2
 
 module load openmpi/4.0.1
-mpiexec  ./osu_bw
+mpiexec --display-map --display-allocation -n 2 --map-by ppr:1:socket ./osu_bw
