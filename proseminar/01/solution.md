@@ -90,6 +90,47 @@ module load openmpi/4.0.1
 make
 ```
 
+
+## How can you verify rank placement without looking at performance?
+
+With the mpiexec flag ```--map-by ppr:N:resource``` one can define exactly how to place ranks.
+ppr = "processes per resource". 
+ppr:N:resource
+- N: assign N processes to each resource of type resource available on the host 
+- resource:	Supported options include slot, hwthread, core, L1cache, L2cache, L3cache, socket, numa, board, node, sequential, distance, and ppr.
+
+With the mpiexec flags ```--display-map``` and ```--display-allocation``` you can verify the rank placements
+
+E.g.
+
+### Same host, different sockets
+```
+ ======================   ALLOCATED NODES   ======================
+
+n001: flags=0x11 slots=2 max_slots=0 slots_inuse=0 state=UP
+=================================================================
+ Data for JOB [11610,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n001    Num slots: 2    Max slots: 0    Num procs: 2
+     Process OMPI jobid: [11610,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0]]:[B/././.][./././.]
+     Process OMPI jobid: [11610,1] App: 0 Process rank: 1 Bound: socket 1[core 4[hwt 0]]./././.][B/././.]
+```
+
+###  Same Socket different cores
+```
+n001: flags=0x11 slots=2 max_slots=0 slots_inuse=0 state=UP
+=================================================================
+ Data for JOB [6730,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n001    Num slots: 2    Max slots: 0    Num procs: 2
+     Process OMPI jobid: [6730,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0]]:[B/././.][./././.]
+     Process OMPI jobid: [6730,1] App: 0 Process rank: 1 Bound: socket 0[core 1[hwt 0]]./B/./.][./././.]
+```
+
 ## osu_latency
 
 ### Script
