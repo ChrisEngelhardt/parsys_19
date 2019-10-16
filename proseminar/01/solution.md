@@ -94,7 +94,9 @@ make
 ## How can you verify rank placement without looking at performance?
 
 With the mpiexec flag ```--map-by ppr:N:resource``` one can define exactly how to place ranks.
+
 ppr = "processes per resource". 
+
 ppr:N:resource
 - N: assign N processes to each resource of type resource available on the host 
 - resource:	Supported options include slot, hwthread, core, L1cache, L2cache, L3cache, socket, numa, board, node, sequential, distance, and ppr.
