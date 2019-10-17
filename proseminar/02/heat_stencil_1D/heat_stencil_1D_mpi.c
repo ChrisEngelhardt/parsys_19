@@ -30,6 +30,9 @@ int main(int argc, char **argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
   MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
   
+  
+  int lastProcess = numProcs-1;
+  
   // 'parsing' optional input parameter = problem size
   int N = 2000;
   if (argc > 1) {
@@ -54,7 +57,7 @@ int main(int argc, char **argv) {
   int source_x = N / 4;
   A[source_x] = 273 + 60;
 
-  if(myrank == 0){
+  if(myrank == lastProcess){
     printf("Initial:\t");
     printTemperature(A, N);
     printf("\n");
@@ -70,7 +73,7 @@ int main(int argc, char **argv) {
   // for each time step ..
   for (int t = 0; t < T; t++) {
     // .. we propagate the temperature
-    for (long long i = NPerSlot*myrank; i < NPerSlot*(myrank+1) || (myrank==numProcs-1 && i < N); i++) {
+    for (long long i = NPerSlot*myrank; i < NPerSlot*(myrank+1) || (myrank==lastProcess && i < N); i++) {
       // center stays constant (the heat is still on)
       if (i == source_x) {
         B[i] = A[i];
@@ -100,7 +103,7 @@ int main(int argc, char **argv) {
       MPI_Isend(&A[NPerSlot*myrank], 1, MPI_DOUBLE, myrank-1, TAG_L, MPI_COMM_WORLD, &requestL);
     }
     
-    if(myrank != numProcs-1){
+    if(myrank != lastProcess){
       MPI_Isend(&A[NPerSlot*(myrank+1)-1], 1, MPI_DOUBLE, myrank+1, TAG_R, MPI_COMM_WORLD, &requestR);
     }
     
@@ -108,7 +111,7 @@ int main(int argc, char **argv) {
     if(myrank != 0){
       MPI_Recv(&A[NPerSlot*myrank-1], 1, MPI_DOUBLE, myrank-1, TAG_R, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
-    if(myrank != numProcs-1){
+    if(myrank != lastProcess){
       MPI_Recv(&A[NPerSlot*(myrank+1)], 1, MPI_DOUBLE, myrank+1, TAG_L, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
     
@@ -117,7 +120,7 @@ int main(int argc, char **argv) {
     if(myrank != 0){
       MPI_Wait(&requestL, MPI_STATUS_IGNORE);
     }
-    if(myrank != numProcs-1){
+    if(myrank != lastProcess){
       MPI_Wait(&requestR, MPI_STATUS_IGNORE);
     }
     
@@ -125,16 +128,12 @@ int main(int argc, char **argv) {
     
     // show intermediate step
     if (!(t % 1000)) {
-      if(myrank == 0){
-        for(int i = 1; i < numProcs; i++){
-          MPI_Recv(&A[NPerSlot*i], NPerSlot, MPI_DOUBLE, i, TAG_A, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
-        
+      MPI_Gather(&A[NPerSlot*myrank], NPerSlot, MPI_DOUBLE, A, NPerSlot, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
+      
+      if(myrank == lastProcess){
         printf("Step t=%d:\t", t);
         printTemperature(A, N);
         printf("\n");
-      } else {
-        MPI_Send(&A[NPerSlot*myrank], NPerSlot, MPI_DOUBLE, 0, TAG_A, MPI_COMM_WORLD);
       }
     }
   }
@@ -142,11 +141,9 @@ int main(int argc, char **argv) {
   releaseVector(B);
 
 
+  MPI_Gather(&A[NPerSlot*myrank], NPerSlot, MPI_DOUBLE, A, NPerSlot, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
 
-  if(myrank == 0){
-    for(int i = 1; i < numProcs; i++){
-      MPI_Recv(&A[NPerSlot*i], NPerSlot, MPI_DOUBLE, i, TAG_A, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    }
+  if(myrank == lastProcess){
     // ---------- check ----------
 
     printf("Final:\t\t");
@@ -166,8 +163,6 @@ int main(int argc, char **argv) {
     
     MPI_Finalize();
     return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
-  } else {
-    MPI_Send(&A[NPerSlot*myrank], NPerSlot, MPI_DOUBLE, 0, TAG_A, MPI_COMM_WORLD);
   }
 
 
