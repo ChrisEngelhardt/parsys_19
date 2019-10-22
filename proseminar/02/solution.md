@@ -34,7 +34,7 @@ The slot with `slotNumber == 0`, will then finally artihemtic average of all res
 - `MPI_Finalize`: Clean up mpi 
 
 #### Implement your chosen parallelization strategy as a second application pi_mpi. Run it with varying numbers of ranks and sample sizes and verify its correctness by comparing the output to pi_seq.
-
+![Plot](pi/pi_mpi_plot.png)
 
 
 #### Discuss the effects and implications of your parallelization.
