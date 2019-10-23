@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 
 typedef double value_t;
+
+#define TAG_L 42
+#define TAG_R 43
+#define TAG_A 44
+
 
 #define RESOLUTION 50
 
@@ -26,13 +32,25 @@ void printTemperatureMatrix(Matrix m, int x, int y);
 // -- simulation code ---
 
 int main(int argc, char **argv) {
+  int numProcs, myrank;
+
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+  MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+  
+  
+  int lastProcess = numProcs-1;
+  
+  
   // 'parsing' optional input parameter = problem size
-  int N = 200;
+  int N = 500;
   if (argc > 1) {
     N = atoi(argv[1]);
   }
   int T = N * 10;
-  printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
+  if(myrank == lastProcess){
+    printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
+  }
 
   // ---------- setup ----------
 
@@ -52,19 +70,23 @@ int main(int argc, char **argv) {
   
   A[source_x][source_y] = 273 + 60;
 
-  printf("Initial:\n");
-  printTemperatureMatrix(A, N, N);
-  printf("\n");
+  if(myrank == lastProcess){
+    printf("Initial:\n");
+    printTemperatureMatrix(A, N, N);
+    printf("\n");
+  }
 
   // ---------- compute ----------
 
   // create a second buffer for the computation
   Matrix B = createMatrix(N,N);
+  
+  long long NPerSlot = N/numProcs;
 
   // for each time step ..
   for (int t = 0; t < T; t++) {
     // .. we propagate the temperature
-    for (long long i = 0; i < N; i++) {
+    for (long long i = NPerSlot*myrank; i < NPerSlot*(myrank+1) || (myrank==lastProcess && i < N); i++) {
       for(long long j = 0; j < N; j++){
         // center stays constant (the heat is still on)
         if (i == source_x && j == source_y) {
@@ -90,9 +112,49 @@ int main(int argc, char **argv) {
     Matrix H = A;
     A = B;
     B = H;
+    
+    MPI_Request requestL;
+    MPI_Request requestR;
+    //Send
+    if(myrank != 0){
+      MPI_Isend(&A[NPerSlot*myrank][0], N, MPI_DOUBLE, myrank-1, TAG_L, MPI_COMM_WORLD, &requestL);
+    }
+    
+    if(myrank != lastProcess){
+      MPI_Isend(&A[NPerSlot*(myrank+1)-1][0], N, MPI_DOUBLE, myrank+1, TAG_R, MPI_COMM_WORLD, &requestR);
+    }
+    
+    //Recive
+    if(myrank != 0){
+      MPI_Recv(&A[NPerSlot*myrank-1][0], N, MPI_DOUBLE, myrank-1, TAG_R, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    if(myrank != lastProcess){
+      MPI_Recv(&A[NPerSlot*(myrank+1)][0], N, MPI_DOUBLE, myrank+1, TAG_L, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    
+    //Waiting for completion
+    if(myrank != 0){
+      MPI_Wait(&requestL, MPI_STATUS_IGNORE);
+    }
+    if(myrank != lastProcess){
+      MPI_Wait(&requestR, MPI_STATUS_IGNORE);
+    }
+
+
+    // show intermediate step
+    if (!(t % 100)) {
+      MPI_Gather(A[NPerSlot*myrank], NPerSlot*N, MPI_DOUBLE, A[0], NPerSlot, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
+
+      printf("Step t=%d:\n", t);
+      printTemperatureMatrix(A, N, N);
+      printf("\n");
+    }
   }
 
   releaseMatrix(B);
+  
+  MPI_Gather(A[NPerSlot*myrank], NPerSlot*N, MPI_DOUBLE, A[0], NPerSlot, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
 
   // ---------- check ----------
 
