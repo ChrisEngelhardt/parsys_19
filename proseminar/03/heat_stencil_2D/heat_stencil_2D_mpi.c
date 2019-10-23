@@ -171,6 +171,8 @@ int main(int argc, char **argv) {
   // ---------- cleanup ----------
 
   releaseMatrix(A);
+  
+  MPI_Finalize();
 
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
