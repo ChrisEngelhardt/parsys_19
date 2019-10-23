@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
   
   
   // 'parsing' optional input parameter = problem size
-  int N = 500;
+  int N = 200;
   if (argc > 1) {
     N = atoi(argv[1]);
   }
@@ -140,28 +140,19 @@ int main(int argc, char **argv) {
     if(myrank != lastProcess){
       MPI_Wait(&requestR, MPI_STATUS_IGNORE);
     }
-
-
-    // show intermediate step
-    if (!(t % 100)) {
-      MPI_Gather(A[NPerSlot*myrank], NPerSlot*N, MPI_DOUBLE, A[0], NPerSlot, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
-
-      printf("Step t=%d:\n", t);
-      printTemperatureMatrix(A, N, N);
-      printf("\n");
-    }
   }
 
   releaseMatrix(B);
   
-  MPI_Gather(A[NPerSlot*myrank], NPerSlot*N, MPI_DOUBLE, A[0], NPerSlot, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
+  MPI_Gather(A[NPerSlot*myrank], NPerSlot*N, MPI_DOUBLE, A[0], NPerSlot*N, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
 
   // ---------- check ----------
 
-  printf("Final:\n");
-  printTemperatureMatrix(A, N, N);
-  printf("\n");
-
+  if(myrank == lastProcess){
+    printf("Final:\n");
+    printTemperatureMatrix(A, N, N);
+    printf("\n");
+  }
   int success = 1;
   for (long long i = 0; i < N; i++) {
     for(long long j = 0; j < N; j++){
@@ -173,7 +164,9 @@ int main(int argc, char **argv) {
     }
   }
 
-  printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  if(myrank == lastProcess){
+    printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  }
 
   // ---------- cleanup ----------
 
