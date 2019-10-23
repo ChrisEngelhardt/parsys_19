@@ -17,7 +17,7 @@ Matrix createMatrix(int x, int y);
 
 void releaseVector(Vector m);
 
-void releaseMatrix(Matrix m, int y);
+void releaseMatrix(Matrix m);
 
 void printTemperature(Vector m, int N);
 
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  releaseMatrix(B,N);
+  releaseMatrix(B);
 
   // ---------- check ----------
 
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
 
   // ---------- cleanup ----------
 
-  releaseMatrix(A,N);
+  releaseMatrix(A);
 
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -135,21 +135,21 @@ Vector createVector(int N) {
 
 Matrix createMatrix(int x, int y) {
   Matrix matrix = malloc(sizeof(Vector) * x);
-  for(int i = 0; i < x; i++){
-    matrix[i] = createVector(sizeof(value_t) * y);
+  matrix[0] = malloc(sizeof(value_t) * x * y);
+
+  for(int i = 1; i < x; i++){
+    matrix[i] = &matrix[0][i*y];
   }
   
   return matrix;
 }
-
 void releaseVector(Vector m) { free(m); }
 
-void releaseMatrix(Matrix m, int x) {
-  for(int i = 0; i < x; i++){
-    free(m[i]);
-  }
+void releaseMatrix(Matrix m) {
+  free(m[0]);
   free(m);
 }
+
 
 void printTemperature(Vector m, int N) {
   const char *colors = " .-:=+*^X#%@";
