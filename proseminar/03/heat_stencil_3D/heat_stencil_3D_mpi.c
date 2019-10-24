@@ -38,8 +38,9 @@ int main(int argc, char **argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
   MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
   
+  double start = MPI_Wtime();
   
-    int lastProcess = numProcs-1;
+  int lastProcess = numProcs-1;
   
   // 'parsing' optional input parameter = problem size
   int N = 50;
@@ -104,7 +105,7 @@ int main(int argc, char **argv) {
 
 
           // compute new temperature at current position
-          B[i][j][k] = tc + 0.2 * (tl + tr + tb + tt + tba + tfr + (-6 * tc));
+          B[i][j][k] = tc + 0.15 * (tl + tr + tb + tt + tba + tfr + (-6 * tc));
         }
       }
     }
@@ -146,16 +147,34 @@ int main(int argc, char **argv) {
   releaseCube(B,N);
   
   MPI_Gather(A[NPerSlot*myrank][0], NPerSlot*N*N, MPI_DOUBLE, A[0][0], NPerSlot*N*N, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
-
+  
+  int success = 1;
+  for (long long i = 0; i < N; i++) {
+    for(long long j = 0; j < N; j++){
+      for(long long k = 0; j < N; j++){
+        value_t temp = A[i][j][k];
+        if (273 <= temp && temp <= 273 + 60)
+          continue;
+        success = 0;
+        break;
+      }
+    }
+  }
+  
 
   // ---------- cleanup ----------
 
   releaseCube(A,N);
   
+  if(myrank == lastProcess){
+    printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+    printf("%lf",MPI_Wtime() - start);
+  }
+  
   MPI_Finalize();
 
   // done
-  return  EXIT_SUCCESS;
+  return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 Vector createVector(int N) {

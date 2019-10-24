@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 
 typedef double value_t;
 
@@ -25,6 +26,11 @@ void releaseCube(Cube m, int N);
 // -- simulation code ---
 
 int main(int argc, char **argv) {
+  //Using for time mesurement
+  MPI_Init(0,0);
+  
+  double start = MPI_Wtime();
+  
   // 'parsing' optional input parameter = problem size
   int N = 50;
   if (argc > 1) {
@@ -86,7 +92,7 @@ int main(int argc, char **argv) {
 
 
           // compute new temperature at current position
-          B[i][j][k] = tc + 0.2 * (tl + tr + tb + tt + tba + tfr + (-6 * tc));
+          B[i][j][k] = tc + 0.15 * (tl + tr + tb + tt + tba + tfr + (-6 * tc));
         }
       }
     }
@@ -98,13 +104,33 @@ int main(int argc, char **argv) {
   }
 
   releaseCube(B,N);
+  
+  int success = 1;
+  for (long long i = 0; i < N; i++) {
+    for(long long j = 0; j < N; j++){
+      for(long long k = 0; j < N; j++){
+        value_t temp = A[i][j][k];
+        if (273 <= temp && temp <= 273 + 60)
+          continue;
+        success = 0;
+        break;
+      }
+    }
+  }
+  
+  printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  
+  printf("%lf",MPI_Wtime() - start);
 
+  
   // ---------- cleanup ----------
 
   releaseCube(A,N);
+  
+  MPI_Finalize();
 
   // done
-  return  EXIT_SUCCESS;
+  return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 Vector createVector(int N) {

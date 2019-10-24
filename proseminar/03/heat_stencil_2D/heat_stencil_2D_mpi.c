@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
   MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
   
+  double start = MPI_Wtime();
   
   int lastProcess = numProcs-1;
   
@@ -171,6 +172,10 @@ int main(int argc, char **argv) {
   // ---------- cleanup ----------
 
   releaseMatrix(A);
+  
+  if(myrank == lastProcess){
+    printf("%lf",MPI_Wtime() - start);
+  }
   
   MPI_Finalize();
 

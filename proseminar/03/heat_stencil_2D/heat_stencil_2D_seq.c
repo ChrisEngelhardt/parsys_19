@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 
 typedef double value_t;
 
@@ -27,6 +28,13 @@ void printTemperatureMatrix(Matrix m, int x, int y);
 
 int main(int argc, char **argv) {
   // 'parsing' optional input parameter = problem size
+  
+  //Using for time mesurement
+  MPI_Init(0,0);
+  
+  double start = MPI_Wtime();
+
+
   int N = 200;
   if (argc > 1) {
     N = atoi(argv[1]);
@@ -112,10 +120,14 @@ int main(int argc, char **argv) {
   }
 
   printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  
+  printf("%lf",MPI_Wtime() - start);
 
-  // ---------- cleanup ----------
+  // ---------- cleanup ----------  
 
   releaseMatrix(A);
+  
+  MPI_Finalize();
 
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
