@@ -1,0 +1,25 @@
+  Loading openmpi/3.1.1 for compiler gnu-4.8.5
+ranks 16; n 50
+0.493228
+ranks 16; n 100
+3.846313
+ranks 16; n 150
+18.147820
+ranks 8; n 50
+0.353547
+ranks 8; n 100
+5.525048
+ranks 8; n 150
+29.150007
+ranks 4; n 50
+0.604672
+ranks 4; n 100
+8.889062
+ranks 4; n 150
+46.111547
+ranks 1; n 50
+2.077866
+ranks 1; n 100
+34.225388
+ranks 1; n 100
+172.425536
