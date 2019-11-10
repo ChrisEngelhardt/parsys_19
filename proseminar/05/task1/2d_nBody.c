@@ -16,6 +16,7 @@ struct body{
 #define dT 1.0f		//timestep
 #define G 1.0f		//Gravity constant
 #define FS 100		//Field size
+#define IS 1.0f		//Initial max speed
 
 int N = 100;		//Number of bodies
 int S = 10000;		//Number of steps
@@ -29,8 +30,8 @@ void sampleBodies(struct body* bodies){
 	for (int i = 0;i<N;i++) {
 		bodies[i].x = randF(FS);
 		bodies[i].y = randF(FS);
-		bodies[i].vx = 0;
-		bodies[i].vy = 0;
+		bodies[i].vx = randF(IS)*2-IS;
+		bodies[i].vy = randF(IS)*2-IS;
 		bodies[i].m = randF(1);
 	}
 }
@@ -68,5 +69,5 @@ int main(int argc, char *argv[]) {
 	free(bodies);
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("%f",time_spent);
+	printf("%f\n",time_spent);
 }

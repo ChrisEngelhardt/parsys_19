@@ -1,0 +1,18 @@
+Vary the number of bodies with const number of steps=10000
+10
+0.017614
+100
+2.060016
+500
+52.024265
+1000
+208.578695
+Vary the number of steps with const bodies=100
+100
+0.020651
+1000
+0.206145
+10000
+2.081810
+100000
+20.616250

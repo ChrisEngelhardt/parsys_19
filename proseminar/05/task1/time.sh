@@ -5,10 +5,10 @@ echo "10"
 ./2d_nBody 10
 echo "100"
 ./2d_nBody 100
-echo "100"
-./2d_nBody 1000
+echo "500"
+./2d_nBody 500
 echo "1000"
-./2d_nBody 10000
+./2d_nBody 1000
 
 echo "Vary the number of steps with const bodies=100"
 echo "100"
