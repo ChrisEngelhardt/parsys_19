@@ -9,6 +9,8 @@ struct body{
 	double y;
 	double vx;
 	double vy;
+	double fx;
+	double fy;
 	double m;
 };
 
@@ -32,23 +34,37 @@ void sampleBodies(struct body* bodies){
 		bodies[i].y = randF(FS);
 		bodies[i].vx = randF(IS)*2-IS;
 		bodies[i].vy = randF(IS)*2-IS;
+		bodies[i].fx = 0;
+		bodies[i].fy = 0;
 		bodies[i].m = randF(1);
 	}
 }
 
 void simulate(struct body* bodies){
+	//calculate forces
 	for (int i=0;i<N;i++) {
+		struct body* b1 = &bodies[i];
+		b1->fx = 0.0;
+		b1->fy = 0.0;
 		for (int j=0;j<N;j++) {
 			if (i == j) continue;
-			struct body* b1 = &bodies[i];
 			struct body* b2 = &bodies[j];
-			double r = sqrt((b1->x-b2->x)*(b1->x-b2->x)+(b1->y-b2->y)*(b1->y-b2->y));
+			double dx = b2->x-b1->x;
+    		double dy = b2->y-b1->y;
+			double r = sqrt(dx*dx+dy*dy);
 			double force = G*(b1->m*b2->m)/(r*r);
-			b1->vx = b1->vx+force/b1->m;
-			b1->vy = b1->vy+force/b1->m;
-			b1->x = b1->x+b1->vx*dT;
-			b1->y = b1->y+b1->vy*dT;
+			b1->fx += force * dx / r;
+			b1->fy += force * dy / r;
 		}
+	}
+
+	//update velocity/position
+	for (int i=0;i<N;i++){
+		struct body* b1 = &bodies[i];
+		b1->vx = b1->vx+dT*b1->fx/b1->m;
+		b1->vy = b1->vy+dT*b1->fy/b1->m;
+		b1->x = b1->x+b1->vx*dT;
+		b1->y = b1->y+b1->vy*dT;
 	}
 }
 
