@@ -61,10 +61,10 @@ void simulate(struct body* bodies){
 	//update velocity/position
 	for (int i=0;i<N;i++){
 		struct body* b1 = &bodies[i];
-		b1->vx = b1->vx+dT*b1->fx/b1->m;
-		b1->vy = b1->vy+dT*b1->fy/b1->m;
-		b1->x = b1->x+b1->vx*dT;
-		b1->y = b1->y+b1->vy*dT;
+		b1->vx += dT*b1->fx/b1->m;
+		b1->vy += dT*b1->fy/b1->m;
+		b1->x += b1->vx*dT;
+		b1->y += b1->vy*dT;
 	}
 }
 

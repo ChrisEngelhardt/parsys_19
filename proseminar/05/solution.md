@@ -14,5 +14,8 @@ For varying number of bodies, as well as varying number of steps we have a linea
 - We could parallize the process (computation of bodies can be spilt up to multiple cores)
 
 ## What parallelization strategies would you consider for Exercise 1 and why?
-- Split up the space into multiple cells. Each node calulates the body if its center is inside of its responsible field.
-- A node is responsible for n bodies to calculate
+- A node is responsible for n bodies to calculate and at each time step we synchronize the entire data (Very high communication overhead => not lucrative) 
+- Split up the space into multiple cells. Each node calulates the body if its center is inside of its responsible field. (Still high communication overhead)
+- Barnes-Hut-Algorithmus (https://en.wikipedia.org/wiki/Barnes%E2%80%93Hut_simulation): The simulation volume is usually divided up into cubic cells via an octree (in a three-dimensional space), so that only particles from nearby cells need to be treated individually, and particles in distant cells can be treated as a single large particle centered at the cell's center of mass (or as a low-order multipole expansion). This can dramatically reduce the number of particle pair interactions that must be computed.
+
+ 
