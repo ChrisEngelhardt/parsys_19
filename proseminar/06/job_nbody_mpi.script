@@ -1,0 +1,115 @@
+
+#!/bin/bash
+# Execute job in the queue "std.q" unless you have special requirements.
+#$ -q std.q
+
+# The batch system should use the current directory as working directory.
+#$ -cwd
+
+# Name your job. Unless you use the -o and -e options, output will
+# go to a unique file name.ojob_id for each job.
+#$ -N my_test_job
+
+# Redirect output stream to this file.
+#$ -o output_nbody_mpi.dat
+
+# Join the error stream to the output stream.
+#$ -j yes
+
+#$ -pe openmpi-8perhost 16
+
+module load openmpi/3.1.1
+
+echo "Vary the number of bodies with const number of steps=10000"
+echo "ranks 16; 10"
+mpiexec -n 16 ./2d_nbody 10
+echo "ranks 16; 100"
+mpiexec -n 16 ./2d_nbody 100
+echo "ranks 16; 1000"
+mpiexec -n 16 ./2d_nbody 1000
+echo "ranks 16; 10000"
+mpiexec -n 16 ./2d_nbody 10000
+
+echo "ranks 8; 10"
+mpiexec -n 8 ./2d_nbody 10
+echo "ranks 8; 100"
+mpiexec -n 8 ./2d_nbody 100
+echo "ranks 8; 1000"
+mpiexec -n 8 ./2d_nbody 1000
+echo "ranks 8; 10000"
+mpiexec -n 8 ./2d_nbody 10000
+
+echo "ranks 4; 10"
+mpiexec -n 4 ./2d_nbody 10
+echo "ranks 4; 100"
+mpiexec -n 4 ./2d_nbody 100
+echo "ranks 4; 1000"
+mpiexec -n 4 ./2d_nbody 1000
+echo "ranks 4; 10000"
+mpiexec -n 4 ./2d_nbody 10000
+
+echo "ranks 2; 10"
+mpiexec -n 2 ./2d_nbody 10
+echo "ranks 2; 100"
+mpiexec -n 2 ./2d_nbody 100
+echo "ranks 2; 1000"
+mpiexec -n 2 ./2d_nbody 1000
+echo "ranks 2; 10000"
+mpiexec -n 2 ./2d_nbody 10000
+
+echo "ranks 1; 10"
+mpiexec -n 1 ./2d_nbody 10
+echo "ranks 1; 100"
+mpiexec -n 1 ./2d_nbody 100
+echo "ranks 1; 1000"
+mpiexec -n 1 ./2d_nbody 1000
+echo "ranks 1; 10000"
+mpiexec -n 1 ./2d_nbody 10000
+
+
+
+echo "Vary the number of steps with const bodies=100"
+echo "ranks 16; 10"
+mpiexec -n 16 ./2d_nbody 100 100
+echo "ranks 16; 100"
+mpiexec -n 16 ./2d_nbody 100 1000
+echo "ranks 16; 1000"
+mpiexec -n 16 ./2d_nbody 100 10000
+echo "ranks 16; 10000"
+mpiexec -n 16 ./2d_nbody 100 100000
+
+echo "ranks 8; 10"
+mpiexec -n 16 ./2d_nbody 100 100
+echo "ranks 8; 100"
+mpiexec -n 8 ./2d_nbody 100 1000
+echo "ranks 8; 1000"
+mpiexec -n 8 ./2d_nbody 100 10000
+echo "ranks 8; 10000"
+mpiexec -n 8 ./2d_nbody 100 100000
+
+echo "ranks 4; 10"
+mpiexec -n 4 ./2d_nbody 100 100
+echo "ranks 4; 100"
+mpiexec -n 4 ./2d_nbody 100 1000
+echo "ranks 4; 1000"
+mpiexec -n 4 ./2d_nbody 100 10000
+echo "ranks 4; 10000"
+mpiexec -n 4 ./2d_nbody 100 100000
+
+echo "ranks 2; 10"
+mpiexec -n 2 ./2d_nbody 100 100
+echo "ranks 2; 100"
+mpiexec -n 2 ./2d_nbody 100 1000
+echo "ranks 2; 1000"
+mpiexec -n 2 ./2d_nbody 100 10000
+echo "ranks 2; 10000"
+mpiexec -n 2 ./2d_nbody 100 100000
+
+echo "ranks 1; 10"
+mpiexec -n 1 ./2d_nbody 100 100
+echo "ranks 1; 100"
+mpiexec -n 1 ./2d_nbody 100 1000
+echo "ranks 1; 1000"
+mpiexec -n 1 ./2d_nbody 100 10000
+echo "ranks 1; 10000"
+mpiexec -n 1 ./2d_nbody 100 100000

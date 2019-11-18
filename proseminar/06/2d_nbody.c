@@ -69,8 +69,6 @@ void sampleBodies() {
 		position[i].py = randF(FS);
 		ivelocity[i].vx = randF(IS)*2-IS;
 		ivelocity[i].vy = randF(IS)*2-IS;
-		force[i].fx = 0;
-		force[i].fy = 0;
 		mass[i] = randF(1);
 	}
 }
@@ -370,6 +368,7 @@ void simulate(){
 int main(int argc, char* argv[]){
 
 	MPI_Init(&argc, &argv);
+  	double start = MPI_Wtime();
 
 	
 	if (argc > 1) N = atoi(argv[1]);
@@ -420,6 +419,7 @@ int main(int argc, char* argv[]){
 		for (int i = 0; i < N; i++) {
 			 printf("px=%f, py=%f\n", position[i].px, position[i].py);
 		}
+    	printf("%lf\n",MPI_Wtime() - start);
 	}
 
 	MPI_Finalize();
