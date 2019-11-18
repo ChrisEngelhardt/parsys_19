@@ -1,3 +1,5 @@
+#Vary the number of bodies with const number of steps=10000
+ranks; size; time;
  16; 10; 0.072598
  16; 100; 0.867072
  16; 1000; 8.616231
