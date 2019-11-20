@@ -52,7 +52,7 @@ Velocity* ivelocity;  // Initial velocity of particles
 Velocity* velocity;   // Velocity of particles
 double* mass;         // Mass of particles
 Force* force;         // Force of particles
-Cell* rootCell;       // Root of BH octtree
+Cell* rootCell;       // Root of BH quadtree
 
 
 MPI_Datatype MPI_POSITION;
@@ -229,11 +229,11 @@ void addToCell(Cell* cell, int index) {
 
 
 /*
- * Generates the octtree from all particles
+ * Generates the quadtree from all particles
  */
 void generateQuadtree() {
 	
-	// Initialize root of octtree
+	// Initialize root of quadtree
 	rootCell = createCell(FS, FS);
 	rootCell->x = 0;
 	rootCell->y = 0;
@@ -295,7 +295,7 @@ void computeForceOfCell(Cell* cell, int index) {
 	force[index - pindex].fy += f * ((cell->cx- position[index].py) / d);
 }
 
-void computeForceofOcttree(Cell* cell, int index) {
+void computeForceofQuadtree(Cell* cell, int index) {
 	
 	if (cell->numberSubcells == 0) {
 		if (cell->index != -1 && cell->index != index) {
@@ -314,7 +314,7 @@ void computeForceofOcttree(Cell* cell, int index) {
 		}
 		else {
 			for (int i = 0; i < cell->numberSubcells; i++) {
-				computeForceofOcttree(cell->subcells[i], index);
+				computeForceofQuadtree(cell->subcells[i], index);
 			}
 		}      
 	}
@@ -330,12 +330,12 @@ void computeForceBH(){
 		force[i].fx = 0.0;
 		force[i].fy = 0.0;
 
-		computeForceofOcttree(rootCell, i + pindex);
+		computeForceofQuadtree(rootCell, i + pindex);
 	}
 }
 
 /*
- * Deletes the octtree
+ * Deletes the quadtree
  */
 void deleteQuadtree(Cell* cell) {
 	
