@@ -231,7 +231,7 @@ void addToCell(Cell* cell, int index) {
 /*
  * Generates the octtree from all particles
  */
-void generateOcttree() {
+void generateQuadtree() {
 	
 	// Initialize root of octtree
 	rootCell = createCell(FS, FS);
@@ -337,7 +337,7 @@ void computeForceBH(){
 /*
  * Deletes the octtree
  */
-void deleteOcttree(Cell* cell) {
+void deleteQuadtree(Cell* cell) {
 	
 	if (cell->numberSubcells == 0) {
 		free(cell);
@@ -345,7 +345,7 @@ void deleteOcttree(Cell* cell) {
 	}
 
 	for (int i = 0; i < cell->numberSubcells; i++) {
-		deleteOcttree(cell->subcells[i]);
+		deleteQuadtree(cell->subcells[i]);
 	}
 
 	free(cell);
@@ -353,10 +353,10 @@ void deleteOcttree(Cell* cell) {
 
 
 void simulate(){  
-	generateOcttree();
+	generateQuadtree();
 	computeCellProperties(rootCell);
 	computeForceBH();
-	deleteOcttree(rootCell);
+	deleteQuadtree(rootCell);
 		
 	computeVelocity();
 	computePositions();
@@ -409,6 +409,8 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(mass, N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(position, N, MPI_POSITION, 0, MPI_COMM_WORLD);
 	MPI_Scatter(ivelocity, partPerRank, MPI_VELOCITY, velocity, partPerRank, MPI_VELOCITY, 0, MPI_COMM_WORLD);
+
+	free(ivelocity);
 	
 	for (int i = 0; i < S; i++) {
 		simulate();
@@ -421,6 +423,11 @@ int main(int argc, char* argv[]){
 		}
     	printf("%lf\n",MPI_Wtime() - start);
 	}
+
+	free(mass);
+	free(position);
+	free(velocity);
+	free(force);
 
 	MPI_Finalize();
 
