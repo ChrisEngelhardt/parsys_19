@@ -1,0 +1,66 @@
+Vary the number of bodies with const number of steps=10000
+ranks 8; 10
+0.388950
+ranks 8; 100
+1.377023
+ranks 8; 1000
+14.112370
+ranks 8; 10000
+173.303004
+ranks 4; 10
+0.289006
+ranks 4; 100
+1.138118
+ranks 4; 1000
+18.315862
+ranks 4; 10000
+200.003822
+ranks 2; 10
+0.200137
+ranks 2; 100
+1.519017
+ranks 2; 1000
+21.308089
+ranks 2; 10000
+242.777329
+ranks 1; 10
+0.123539
+ranks 1; 100
+1.580638
+ranks 1; 1000
+23.452803
+ranks 1; 10000
+250.628569
+Vary the number of steps with const bodies=100
+ranks 8; 100
+0.065307
+ranks 8; 1000
+0.142902
+ranks 8; 10000
+1.723503
+ranks 8; 100000
+14.240850
+ranks 4; 100
+0.018875
+ranks 4; 1000
+0.158083
+ranks 4; 10000
+1.815474
+ranks 4; 100000
+13.782402
+ranks 2; 100
+0.017275
+ranks 2; 1000
+0.160827
+ranks 2; 10000
+1.570222
+ranks 2; 100000
+12.690386
+ranks 1; 100
+0.015963
+ranks 1; 1000
+0.160506
+ranks 1; 10000
+1.601726
+ranks 1; 100000
+15.980669

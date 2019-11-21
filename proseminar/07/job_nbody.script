@@ -1,0 +1,114 @@
+
+#!/bin/bash
+# Execute job in the queue "std.q" unless you have special requirements.
+#$ -q std.q
+
+# The batch system should use the current directory as working directory.
+#$ -cwd
+
+# Name your job. Unless you use the -o and -e options, output will
+# go to a unique file name.ojob_id for each job.
+#$ -N my_test_job
+
+# Redirect output stream to this file.
+#$ -o output_openmpi.dat
+
+# Join the error stream to the output stream.
+#$ -j yes
+
+#$ -pe openmp 8
+
+echo "Vary the number of bodies with const number of steps=10000"
+
+export OMP_NUM_THREADS=8
+
+echo "ranks 8; 10"
+./2d_nbody 10 10000 8
+echo "ranks 8; 100"
+./2d_nbody 100 10000 8
+echo "ranks 8; 1000"
+./2d_nbody 1000 10000 8
+echo "ranks 8; 10000"
+./2d_nbody 10000 10000 8
+
+export OMP_NUM_THREADS=4
+
+echo "ranks 4; 10"
+./2d_nbody 10 10000 4
+echo "ranks 4; 100"
+./2d_nbody 100 10000 4
+echo "ranks 4; 1000"
+./2d_nbody 1000 10000 4
+echo "ranks 4; 10000"
+./2d_nbody 10000 10000 4
+
+
+export OMP_NUM_THREADS=2
+
+echo "ranks 2; 10"
+./2d_nbody 10 10000 2
+echo "ranks 2; 100"
+./2d_nbody 100 10000 2
+echo "ranks 2; 1000"
+./2d_nbody 1000 10000 2
+echo "ranks 2; 10000"
+./2d_nbody 10000 10000 2
+
+export OMP_NUM_THREADS=1
+
+echo "ranks 1; 10"
+./2d_nbody 10 10000 1
+echo "ranks 1; 100"
+./2d_nbody 100 10000 1
+echo "ranks 1; 1000"
+./2d_nbody 1000 10000 1
+echo "ranks 1; 10000"
+./2d_nbody 10000 10000 1
+
+
+echo "Vary the number of steps with const bodies=100"
+
+export OMP_NUM_THREADS=8
+
+echo "ranks 8; 100"
+./2d_nbody 100 100 8
+echo "ranks 8; 1000"
+./2d_nbody 100 1000 8
+echo "ranks 8; 10000"
+./2d_nbody 100 10000 8
+echo "ranks 8; 100000"
+./2d_nbody 100 100000 8
+
+
+export OMP_NUM_THREADS=4
+
+echo "ranks 4; 100"
+./2d_nbody 100 100 4
+echo "ranks 4; 1000"
+./2d_nbody 100 1000 4
+echo "ranks 4; 10000"
+./2d_nbody 100 10000 4
+echo "ranks 4; 100000"
+./2d_nbody 100 100000 4
+
+export OMP_NUM_THREADS=2
+
+echo "ranks 2; 100"
+./2d_nbody 100 100 2
+echo "ranks 2; 1000"
+./2d_nbody 100 1000 2
+echo "ranks 2; 10000"
+./2d_nbody 100 10000 2
+echo "ranks 2; 100000"
+./2d_nbody 100 100000 2
+
+export OMP_NUM_THREADS=1
+
+echo "ranks 1; 100"
+./2d_nbody 100 100 1
+echo "ranks 1; 1000"
+./2d_nbody 100 1000 1
+echo "ranks 1; 10000"
+./2d_nbody 100 10000 1
+echo "ranks 1; 100000"
+./2d_nbody 100 100000 1

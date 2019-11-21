@@ -109,7 +109,6 @@ void computeVelocity(){
 void computePositions(){
 	#pragma omp parallel for num_threads(THREADCOUNT)
 	for (int i = 0; i < N; i++) {
-		int pindex = 0;
 		position[i].px += velocity[i].vx * DELTAT;
 		position[i].py += velocity[i].vy * DELTAT;
 
