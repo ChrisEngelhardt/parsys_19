@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 
 
 typedef double value_t;
@@ -27,18 +28,15 @@ void printTemperatureMatrix(Matrix m, int x, int y);
 // -- simulation code ---
 
 int main(int argc, char **argv) {
-  // 'parsing' optional input parameter = problem size
-  
-  //Using for time mesurement
-  MPI_Init(0,0);
-  
+
 double startTime = omp_get_wtime();
 
 
   int N = 200;
-  if (argc > 1) {
-    N = atoi(argv[1]);
-  }
+  int THREADCOUNT = 4;
+  if (argc > 1) N = atoi(argv[1]);
+  if (argc > 2) THREADCOUNT = atoi(argv[2]);
+
   int T = N * 10;
   printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
 
@@ -72,6 +70,8 @@ double startTime = omp_get_wtime();
   // for each time step ..
   for (int t = 0; t < T; t++) {
     // .. we propagate the temperature
+
+    #pragma omp parallel for num_threads(THREADCOUNT) shared(A,B)
     for (long long i = 0; i < N; i++) {
       for(long long j = 0; j < N; j++){
         // center stays constant (the heat is still on)
@@ -127,8 +127,6 @@ double startTime = omp_get_wtime();
 
   releaseMatrix(A);
   
-  MPI_Finalize();
-
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
