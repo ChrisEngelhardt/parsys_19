@@ -19,7 +19,7 @@ int main (int argc, char* argv[]){
 
     srand((unsigned int)time(NULL));
     
-    printf("%ld; ", iterations);
+    //printf("%ld; ", iterations);
 
     long inside = 0;
     #pragma omp parallel for num_threads(THREADCOUNT) reduction(+:inside)
@@ -31,6 +31,8 @@ int main (int argc, char* argv[]){
             inside ++;
         }
     }
-    printf("%lf; ", omp_get_wtime() - startTime);
-    printf("%.5f\n",(double) inside/iterations * 4);
+    printf("%d; ", THREADCOUNT);
+    printf("%d; ", iterations);
+    printf("%lf\n", omp_get_wtime() - startTime);
+    //printf("%.5f\n",(double) inside/iterations * 4);
 }
