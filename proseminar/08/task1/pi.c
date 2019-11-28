@@ -9,7 +9,8 @@
 
 
 int main (int argc, char* argv[]){
-
+ 	
+    double startTime = omp_get_wtime();
     long iterations = 1000;
     int THREADCOUNT = 4;
 
@@ -18,7 +19,7 @@ int main (int argc, char* argv[]){
 
     srand((unsigned int)time(NULL));
     
-    printf("%ld samples\n", iterations);
+    printf("%ld; ", iterations);
 
     long inside = 0;
     #pragma omp parallel for num_threads(THREADCOUNT) reduction(+:inside)
@@ -30,6 +31,6 @@ int main (int argc, char* argv[]){
             inside ++;
         }
     }
-
-    printf("Pi is approx. %.5f\n",(double) inside/iterations * 4);
+    printf("%lf; ", omp_get_wtime() - startTime);
+    printf("%.5f\n",(double) inside/iterations * 4);
 }
