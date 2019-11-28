@@ -1,0 +1,35 @@
+#include<stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h> 
+#include <omp.h>
+
+
+#define CIRCLELENGTH 1
+
+
+int main (int argc, char* argv[]){
+
+    long iterations = 1000;
+    int THREADCOUNT = 4;
+
+    if (argc > 1) iterations = atoi(argv[1]);
+    if (argc > 2) THREADCOUNT = atoi(argv[2]);
+
+    srand((unsigned int)time(NULL));
+    
+    printf("%ld samples\n", iterations);
+
+    long inside = 0;
+    #pragma omp parallel for num_threads(THREADCOUNT) reduction(+:inside)
+    for(long i = 0; i < iterations; i++){
+        double point[2];
+        point[0] = (double)rand()/(RAND_MAX);   
+        point[1] = (double)rand()/(RAND_MAX);   
+        if (point[0]*point[0]+point[1]*point[1] < CIRCLELENGTH){
+            inside ++;
+        }
+    }
+
+    printf("Pi is approx. %.5f\n",(double) inside/iterations * 4);
+}
