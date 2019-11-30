@@ -10,7 +10,7 @@ int main (int argc, char* argv[]){
  	
     double startTime = omp_get_wtime();
     long iterations = 1000;
-    int THREADCOUNT = 4;
+    int THREADCOUNT = omp_get_max_threads();
 
     if (argc > 1) iterations = atoi(argv[1]);
 
@@ -33,7 +33,7 @@ int main (int argc, char* argv[]){
         }
     }
     printf("%d; ", THREADCOUNT);
-    printf("%d; ", iterations);
+    printf("%ld; ", iterations);
     printf("%lf\n", omp_get_wtime() - startTime);
     //printf("%.5f\n",(double) inside/iterations * 4);
 }

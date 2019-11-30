@@ -28,17 +28,15 @@ void printTemperatureMatrix(Matrix m, int x, int y);
 // -- simulation code ---
 
 int main(int argc, char **argv) {
-
-double startTime = omp_get_wtime();
+  double startTime = omp_get_wtime();
 
 
   int N = 200;
-  int THREADCOUNT = 4;
+  int THREADCOUNT = omp_get_max_threads();
   if (argc > 1) N = atoi(argv[1]);
-  if (argc > 2) THREADCOUNT = atoi(argv[2]);
 
   int T = N * 10;
-  printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
+  //printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
 
   // ---------- setup ----------
 
@@ -58,9 +56,9 @@ double startTime = omp_get_wtime();
   
   A[source_x][source_y] = 273 + 60;
 
-  printf("Initial:\n");
-  printTemperatureMatrix(A, N, N);
-  printf("\n");
+  //printf("Initial:\n");
+  //printTemperatureMatrix(A, N, N);
+  //printf("\n");
 
   // ---------- compute ----------
 
@@ -71,7 +69,7 @@ double startTime = omp_get_wtime();
   for (int t = 0; t < T; t++) {
     // .. we propagate the temperature
 
-    #pragma omp parallel for num_threads(THREADCOUNT) shared(A,B)
+    #pragma omp parallel for shared(A,B)
     for (long long i = 0; i < N; i++) {
       for(long long j = 0; j < N; j++){
         // center stays constant (the heat is still on)
@@ -104,9 +102,9 @@ double startTime = omp_get_wtime();
 
   // ---------- check ----------
 
-  printf("Final:\n");
-  printTemperatureMatrix(A, N, N);
-  printf("\n");
+  //printf("Final:\n");
+  //printTemperatureMatrix(A, N, N);
+  //printf("\n");
 
   int success = 1;
   for (long long i = 0; i < N; i++) {
@@ -119,9 +117,10 @@ double startTime = omp_get_wtime();
     }
   }
 
-  printf("Verification: %s\n", (success) ? "OK" : "FAILED");
-  
-  printf("%lf, ", omp_get_wtime() - startTime);
+  //printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  printf("%d; ", THREADCOUNT);
+  printf("%d; ", N);
+  printf("%lf\n", omp_get_wtime() - startTime);
 
   // ---------- cleanup ----------  
 
