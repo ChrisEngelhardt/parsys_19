@@ -16,6 +16,7 @@ void setQueen(int positions[], int row, int col) {
 	// col is ok, set queen.
 	positions[row]=col;
 	if(row==n-1) {
+		#pragma omp atomic
 		solutions++;
 	} else {
 		for(int i=0; i<n; i++) {
@@ -26,19 +27,20 @@ void setQueen(int positions[], int row, int col) {
 
 int main(int argc, char* argv[]) {
 	n = (argc > 1) ? atoi(argv[1]) : 8;
-	int* array = malloc(sizeof(int)*n);
 	
 	double start_time, end_time;
 	
 	start_time = omp_get_wtime();
 	
 	#pragma omp parallel for
-	for(int i=0; i<n; i++)
+	for(int i=0; i<n; i++){
+		int* array = malloc(sizeof(int)*n);
 		setQueen(array, 0, i);
+		free(array);
+	}
 	
 	end_time = omp_get_wtime();
 		
-	free(array);
 	
 	printf("The execution time is %g sec\n", end_time - start_time);
 	printf("Number of found solutions is %d\n", solutions);
