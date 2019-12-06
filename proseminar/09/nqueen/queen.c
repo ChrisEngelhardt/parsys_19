@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
 	end_time = omp_get_wtime();
 		
 	
-	printf("The execution time is %g sec\n", end_time - start_time);
-	printf("Number of found solutions is %d\n", solutions);
+	printf("%d; %g\n", n, end_time - start_time);
+	//printf("Number of found solutions is %d\n", solutions);
 		
 	return 0;
 }
