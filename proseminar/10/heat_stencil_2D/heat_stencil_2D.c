@@ -90,8 +90,10 @@ int main(int argc, char **argv) {
   // for each time step ..
   for (int t = 0; t < T; t++) {
     // .. we propagate the temperature
-    for (long long i = NPerSlot*myrank; i < NPerSlot*(myrank+1) || (myrank==lastProcess && i < N); i++) {
-      #pragma omp parallel for shared(A,B)
+    long long maxValue =  myrank==lastProcess ? N : NPerSlot*(myrank+1);
+
+    #pragma omp parallel for shared(A,B) 
+    for (long long i = NPerSlot*myrank; i < maxValue; i++) {
       for(long long j = 0; j < N; j++){
         // center stays constant (the heat is still on)
         if (i == source_x && j == source_y) {
