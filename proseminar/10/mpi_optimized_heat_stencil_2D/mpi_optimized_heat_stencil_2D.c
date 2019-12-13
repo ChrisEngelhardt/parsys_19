@@ -58,6 +58,8 @@ int main(int argc, char **argv) {
 
   // create a buffer for storing temperature fields
   Matrix A = createMatrix(N,N);
+  MPI_Win winA;
+  MPI_Win_create(A[0], sizeof(value_t)* N * N, sizeof(value_t), MPI_INFO_NULL, MPI_COMM_WORLD, &winA);
 
   // set up initial conditions in A
   for (int i = 0; i < N; i++) {
@@ -82,6 +84,8 @@ int main(int argc, char **argv) {
 
   // create a second buffer for the computation
   Matrix B = createMatrix(N,N);
+  MPI_Win winB;
+  MPI_Win_create(B[0], sizeof(value_t)* N * N, sizeof(value_t), MPI_INFO_NULL, MPI_COMM_WORLD, &winB);
   
   long long NPerSlot = N/numProcs;
 
@@ -89,7 +93,7 @@ int main(int argc, char **argv) {
   for (int t = 0; t < T; t++) {
     // .. we propagate the temperature
     for (long long i = NPerSlot*myrank; i < NPerSlot*(myrank+1) || (myrank==lastProcess && i < N); i++) {
-      #pragma omp parallel for shared(A,B)
+      #pragma omp parallel for shared(A,B) 
       for(long long j = 0; j < N; j++){
         // center stays constant (the heat is still on)
         if (i == source_x && j == source_y) {
@@ -115,36 +119,26 @@ int main(int argc, char **argv) {
     Matrix H = A;
     A = B;
     B = H;
+
+    MPI_Win winH = winA;
+    winA = winB;
+    winB = winH;
+
+
+    MPI_Win_fence(0, winA);
     
-    MPI_Request requestL;
-    MPI_Request requestR;
-    //Send
     if(myrank != 0){
-      MPI_Isend(&A[NPerSlot*myrank][0], N, MPI_DOUBLE, myrank-1, TAG_L, MPI_COMM_WORLD, &requestL);
+      MPI_Put(A[NPerSlot*myrank], N, MPI_DOUBLE, myrank-1, (NPerSlot*myrank)*N, N, MPI_DOUBLE, winA);
     }
     
     if(myrank != lastProcess){
-      MPI_Isend(&A[NPerSlot*(myrank+1)-1][0], N, MPI_DOUBLE, myrank+1, TAG_R, MPI_COMM_WORLD, &requestR);
+      MPI_Put(A[NPerSlot*(myrank+1)-1], N, MPI_DOUBLE, myrank+1, (NPerSlot*(myrank+1)-1)*N, N, MPI_DOUBLE, winA);
     }
-    
-    //Recive
-    if(myrank != 0){
-      MPI_Recv(&A[NPerSlot*myrank-1][0], N, MPI_DOUBLE, myrank-1, TAG_R, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    }
-    if(myrank != lastProcess){
-      MPI_Recv(&A[NPerSlot*(myrank+1)][0], N, MPI_DOUBLE, myrank+1, TAG_L, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    }
-    
-    
-    //Waiting for completion
-    if(myrank != 0){
-      MPI_Wait(&requestL, MPI_STATUS_IGNORE);
-    }
-    if(myrank != lastProcess){
-      MPI_Wait(&requestR, MPI_STATUS_IGNORE);
-    }
+
+    MPI_Win_fence(0, winA);
   }
 
+  MPI_Win_free(&winB);
   releaseMatrix(B);
   
   MPI_Gather(A[NPerSlot*myrank], NPerSlot*N, MPI_DOUBLE, A[0], NPerSlot*N, MPI_DOUBLE, lastProcess, MPI_COMM_WORLD);
@@ -173,6 +167,7 @@ int main(int argc, char **argv) {
 
   // ---------- cleanup ----------
 
+  MPI_Win_free(&winA);
   releaseMatrix(A);
   
   if(myrank == lastProcess){
@@ -192,7 +187,7 @@ Vector createVector(int N) {
 
 Matrix createMatrix(int x, int y) {
   Matrix matrix = malloc(sizeof(Vector) * x);
-  matrix[0] = malloc(sizeof(value_t) * x * y);
+  MPI_Alloc_mem(sizeof(value_t) * x * y, MPI_INFO_NULL, &matrix[0]);
 
   for(int i = 1; i < x; i++){
     matrix[i] = &matrix[0][i*y];
@@ -203,7 +198,7 @@ Matrix createMatrix(int x, int y) {
 void releaseVector(Vector m) { free(m); }
 
 void releaseMatrix(Matrix m) {
-  free(m[0]);
+  MPI_Free_mem(m[0]);
   free(m);
 }
 

@@ -54,6 +54,8 @@ int main(int argc, char **argv) {
     printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
   }
 
+  printf("Number of threads %d, %d\n", omp_get_max_threads(),numProcs);
+
   // ---------- setup ----------
 
   // create a buffer for storing temperature fields
