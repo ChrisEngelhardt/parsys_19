@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
     winB = winH;
 
 
-    MPI_Win_fence(0, winA);
+    MPI_Win_fence(MPI_MODE_NOSTORE | MPI_MODE_NOPRECEDE, winA);
     
     if(myrank != 0){
       MPI_Put(A[NPerSlot*myrank], N, MPI_DOUBLE, myrank-1, (NPerSlot*myrank)*N, N, MPI_DOUBLE, winA);
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
       MPI_Put(A[NPerSlot*(myrank+1)-1], N, MPI_DOUBLE, myrank+1, (NPerSlot*(myrank+1)-1)*N, N, MPI_DOUBLE, winA);
     }
 
-    MPI_Win_fence(0, winA);
+    MPI_Win_fence(MPI_MODE_NOSUCCEED | MPI_MODE_NOPUT, winA);
   }
 
   MPI_Win_free(&winB);
