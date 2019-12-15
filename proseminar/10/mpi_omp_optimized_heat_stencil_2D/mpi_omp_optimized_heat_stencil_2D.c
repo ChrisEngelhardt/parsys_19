@@ -50,9 +50,9 @@ int main(int argc, char **argv) {
     N = atoi(argv[1]);
   }
   int T = N * 10;
-  if(myrank == lastProcess){
-    printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
-  }
+  // if(myrank == lastProcess){
+  //   printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
+  // }
 
   // ---------- setup ----------
 
@@ -74,11 +74,11 @@ int main(int argc, char **argv) {
   
   A[source_x][source_y] = 273 + 60;
 
-  if(myrank == lastProcess){
-    printf("Initial:\n");
-    printTemperatureMatrix(A, N, N);
-    printf("\n");
-  }
+  // if(myrank == lastProcess){
+  //   printf("Initial:\n");
+  //   printTemperatureMatrix(A, N, N);
+  //   printf("\n");
+  // }
 
   // ---------- compute ----------
 
@@ -148,11 +148,11 @@ int main(int argc, char **argv) {
 
   // ---------- check ----------
 
-  if(myrank == lastProcess){
-    printf("Final:\n");
-    printTemperatureMatrix(A, N, N);
-    printf("\n");
-  }
+  // if(myrank == lastProcess){
+  //   printf("Final:\n");
+  //   printTemperatureMatrix(A, N, N);
+  //   printf("\n");
+  // }
   int success = 1;
   for (long long i = 0; i < N; i++) {
     for(long long j = 0; j < N; j++){
@@ -164,9 +164,9 @@ int main(int argc, char **argv) {
     }
   }
 
-  if(myrank == lastProcess){
-    printf("Verification: %s\n", (success) ? "OK" : "FAILED");
-  }
+  // if(myrank == lastProcess){
+  //   printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  // }
 
   // ---------- cleanup ----------
 
@@ -174,7 +174,10 @@ int main(int argc, char **argv) {
   releaseMatrix(A);
   
   if(myrank == lastProcess){
-    printf("%lf",MPI_Wtime() - start);
+    printf("%d; ", numProcs);
+    printf("%d; ", omp_get_max_threads());
+    printf("%d; ", N);
+    printf("%lf\n",MPI_Wtime() - start);
   }
   
   MPI_Finalize();

@@ -16,9 +16,18 @@
 # Join the error stream to the output stream.
 #$ -j yes
 
-#$ -pe openmpi-8perhost 16
+#$ -pe openmpi-8perhost 64
 
 module load openmpi/3.1.1
 
-export OMP_NUM_THREADS=8
-mpiexec -pernode ./omp_optimized_heat_stencil_2D 800
+for node in {1..8}
+do
+    for threads in {1..8}
+    do
+    for pSize in 100 200 400 800
+        do
+        export OMP_NUM_THREADS=$threads
+        mpiexec -n $node -pernode ./omp_optimized_heat_stencil_2D $pSize
+        done
+    done
+done
