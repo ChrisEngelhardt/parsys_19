@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include <math.h>
 
 #include "globals.h"
@@ -454,22 +455,20 @@ static void psinv(void *or, void *ou, int n1, int n2, int n3,
   double (*r)[n2][n1] = (double (*)[n2][n1])or;
   double (*u)[n2][n1] = (double (*)[n2][n1])ou;
 
-  int i3, i2, i1;
-
-  double r1[M], r2[M];
 
   if (timeron) timer_start(T_psinv);
-  for (i3 = 1; i3 < n3-1; i3++) {
-    for (i2 = 1; i2 < n2-1; i2++) {
-      for (i1 = 0; i1 < n1; i1++) {
+  #pragma omp parallel for shared(u) 
+  for (int i3 = 1; i3 < n3-1; i3++) {
+    for (int i2 = 1; i2 < n2-1; i2++) {
+      double r1[M], r2[M];
+      for (int i1 = 0; i1 < n1; i1++) {
         r1[i1] = r[i3][i2-1][i1] + r[i3][i2+1][i1]
                + r[i3-1][i2][i1] + r[i3+1][i2][i1];
         r2[i1] = r[i3-1][i2-1][i1] + r[i3-1][i2+1][i1]
                + r[i3+1][i2-1][i1] + r[i3+1][i2+1][i1];
       }
-      for (i1 = 1; i1 < n1-1; i1++) {
-        u[i3][i2][i1] = u[i3][i2][i1]
-                      + c[0] * r[i3][i2][i1]
+      for (int i1 = 1; i1 < n1-1; i1++) {
+        u[i3][i2][i1] += c[0] * r[i3][i2][i1]
                       + c[1] * ( r[i3][i2][i1-1] + r[i3][i2][i1+1]
                                + r1[i1] )
                       + c[2] * ( r2[i1] + r1[i1-1] + r1[i1+1] );
@@ -517,19 +516,20 @@ static void resid(void *ou, void *ov, void *or, int n1, int n2, int n3,
   double (*v)[n2][n1] = (double (*)[n2][n1])ov;
   double (*r)[n2][n1] = (double (*)[n2][n1])or;
 
-  int i3, i2, i1;
-  double u1[M], u2[M];
+  
 
   if (timeron) timer_start(T_resid);
-  for (i3 = 1; i3 < n3-1; i3++) {
-    for (i2 = 1; i2 < n2-1; i2++) {
-      for (i1 = 0; i1 < n1; i1++) {
+  #pragma omp parallel for shared(r) 
+  for (int i3 = 1; i3 < n3-1; i3++) {
+    for (int i2 = 1; i2 < n2-1; i2++) {
+      double u1[M], u2[M];
+      for (int i1 = 0; i1 < n1; i1++) {
         u1[i1] = u[i3][i2-1][i1] + u[i3][i2+1][i1]
                + u[i3-1][i2][i1] + u[i3+1][i2][i1];
         u2[i1] = u[i3-1][i2-1][i1] + u[i3-1][i2+1][i1]
                + u[i3+1][i2-1][i1] + u[i3+1][i2+1][i1];
       }
-      for (i1 = 1; i1 < n1-1; i1++) {
+      for (int i1 = 1; i1 < n1-1; i1++) {
         r[i3][i2][i1] = v[i3][i2][i1]
                       - a[0] * u[i3][i2][i1]
         //-------------------------------------------------------------------
@@ -575,9 +575,7 @@ static void rprj3(void *or, int m1k, int m2k, int m3k,
   double (*r)[m2k][m1k] = (double (*)[m2k][m1k])or;
   double (*s)[m2j][m1j] = (double (*)[m2j][m1j])os;
 
-  int j3, j2, j1, i3, i2, i1, d1, d2, d3, j;
-
-  double x1[M], y1[M], x2, y2;
+  int d1, d2, d3, j;
 
   if (timeron) timer_start(T_rprj3);
   if (m1k == 3) {
@@ -598,24 +596,25 @@ static void rprj3(void *or, int m1k, int m2k, int m3k,
     d3 = 1;
   }
 
-  for (j3 = 1; j3 < m3j-1; j3++) {
-    i3 = 2*j3-d3;
-    for (j2 = 1; j2 < m2j-1; j2++) {
-      i2 = 2*j2-d2;
-
-      for (j1 = 1; j1 < m1j; j1++) {
-        i1 = 2*j1-d1;
+  #pragma omp parallel for shared(s) 
+  for (int j3 = 1; j3 < m3j-1; j3++) {
+    int i3 = 2*j3-d3;
+    for (int j2 = 1; j2 < m2j-1; j2++) {
+      int i2 = 2*j2-d2;
+      double x1[M], y1[M];
+      for (int j1 = 1; j1 < m1j; j1++) {
+        int i1 = 2*j1-d1;
         x1[i1] = r[i3+1][i2  ][i1] + r[i3+1][i2+2][i1]
                + r[i3  ][i2+1][i1] + r[i3+2][i2+1][i1];
         y1[i1] = r[i3  ][i2  ][i1] + r[i3+2][i2  ][i1]
                + r[i3  ][i2+2][i1] + r[i3+2][i2+2][i1];
       }
 
-      for (j1 = 1; j1 < m1j-1; j1++) {
-        i1 = 2*j1-d1;
-        y2 = r[i3  ][i2  ][i1+1] + r[i3+2][i2  ][i1+1]
+      for (int j1 = 1; j1 < m1j-1; j1++) {
+        int i1 = 2*j1-d1;
+        double y2 = r[i3  ][i2  ][i1+1] + r[i3+2][i2  ][i1+1]
            + r[i3  ][i2+2][i1+1] + r[i3+2][i2+2][i1+1];
-        x2 = r[i3+1][i2  ][i1+1] + r[i3+1][i2+2][i1+1]
+        double x2 = r[i3+1][i2  ][i1+1] + r[i3+1][i2+2][i1+1]
            + r[i3  ][i2+1][i1+1] + r[i3+2][i2+1][i1+1];
         s[j3][j2][j1] =
                 0.5 * r[i3+1][i2+1][i1+1]
@@ -656,37 +655,38 @@ static void interp(void *oz, int mm1, int mm2, int mm3,
   double (*z)[mm2][mm1] = (double (*)[mm2][mm1])oz;
   double (*u)[n2][n1] = (double (*)[n2][n1])ou;
 
-  int i3, i2, i1, d1, d2, d3, t1, t2, t3;
+  int d1, d2, d3, t1, t2, t3;
 
   // note that m = 1037 in globals.h but for this only need to be
   // 535 to handle up to 1024^3
   //      integer m
   //      parameter( m=535 )
-  double z1[M], z2[M], z3[M];
 
   if (timeron) timer_start(T_interp);
   if (n1 != 3 && n2 != 3 && n3 != 3) {
-    for (i3 = 0; i3 < mm3-1; i3++) {
-      for (i2 = 0; i2 < mm2-1; i2++) {
-        for (i1 = 0; i1 < mm1; i1++) {
+    #pragma omp parallel for shared(u) 
+    for (int i3 = 0; i3 < mm3-1; i3++) {
+      for (int i2 = 0; i2 < mm2-1; i2++) {
+        double z1[M], z2[M], z3[M];
+        for (int i1 = 0; i1 < mm1; i1++) {
           z1[i1] = z[i3][i2+1][i1] + z[i3][i2][i1];
           z2[i1] = z[i3+1][i2][i1] + z[i3][i2][i1];
           z3[i1] = z[i3+1][i2+1][i1] + z[i3+1][i2][i1] + z1[i1];
         }
 
-        for (i1 = 0; i1 < mm1-1; i1++) {
+        for (int i1 = 0; i1 < mm1-1; i1++) {
           u[2*i3][2*i2][2*i1] += z[i3][i2][i1];
           u[2*i3][2*i2][2*i1+1] += 0.5 * (z[i3][i2][i1+1] + z[i3][i2][i1]);
         }
-        for (i1 = 0; i1 < mm1-1; i1++) {
+        for (int i1 = 0; i1 < mm1-1; i1++) {
           u[2*i3][2*i2+1][2*i1] += 0.5 * z1[i1];
           u[2*i3][2*i2+1][2*i1+1] += 0.25 * (z1[i1] + z1[i1+1]);
         }
-        for (i1 = 0; i1 < mm1-1; i1++) {
+        for (int i1 = 0; i1 < mm1-1; i1++) {
           u[2*i3+1][2*i2][2*i1] += 0.5 * z2[i1];
           u[2*i3+1][2*i2][2*i1+1] += 0.25 * (z2[i1] + z2[i1+1]);
         }
-        for (i1 = 0; i1 < mm1-1; i1++) {
+        for (int i1 = 0; i1 < mm1-1; i1++) {
           u[2*i3+1][2*i2+1][2*i1] += 0.25 * z3[i1];
           u[2*i3+1][2*i2+1][2*i1+1] += 0.125 * (z3[i1] + z3[i1+1]);
         }
@@ -717,42 +717,44 @@ static void interp(void *oz, int mm1, int mm2, int mm3,
       t3 = 0;
     }
 
-    for (i3 = d3; i3 <= mm3-1; i3++) {
-      for (i2 = d2; i2 <= mm2-1; i2++) {
-        for (i1 = d1; i1 <= mm1-1; i1++) {
+    #pragma omp parallel for shared(u) 
+    for (int i3 = d3; i3 <= mm3-1; i3++) {
+      for (int i2 = d2; i2 <= mm2-1; i2++) {
+        for (int i1 = d1; i1 <= mm1-1; i1++) {
           u[2*i3-d3-1][2*i2-d2-1][2*i1-d1-1] += z[i3-1][i2-1][i1-1];
         }
-        for (i1 = 1; i1 <= mm1-1; i1++) {
+        for (int i1 = 1; i1 <= mm1-1; i1++) {
           u[2*i3-d3-1][2*i2-d2-1][2*i1-t1-1] += 0.5 * (z[i3-1][i2-1][i1] + z[i3-1][i2-1][i1-1]);
         }
       }
-      for (i2 = 1; i2 <= mm2-1; i2++) {
-        for (i1 = d1; i1 <= mm1-1; i1++) {
+      for (int i2 = 1; i2 <= mm2-1; i2++) {
+        for (int i1 = d1; i1 <= mm1-1; i1++) {
           u[2*i3-d3-1][2*i2-t2-1][2*i1-d1-1] += 0.5 * (z[i3-1][i2][i1-1] + z[i3-1][i2-1][i1-1]);
         }
-        for (i1 = 1; i1 <= mm1-1; i1++) {
+        for (int i1 = 1; i1 <= mm1-1; i1++) {
           u[2*i3-d3-1][2*i2-t2-1][2*i1-t1-1] += 0.25 * (z[i3-1][i2][i1] + z[i3-1][i2-1][i1]
                     + z[i3-1][i2][i1-1] + z[i3-1][i2-1][i1-1]);
         }
       }
     }
 
-    for (i3 = 1; i3 <= mm3-1; i3++) {
-      for (i2 = d2; i2 <= mm2-1; i2++) {
-        for (i1 = d1; i1 <= mm1-1; i1++) {
+    #pragma omp parallel for shared(u)
+    for (int i3 = 1; i3 <= mm3-1; i3++) {
+      for (int i2 = d2; i2 <= mm2-1; i2++) {
+        for (int i1 = d1; i1 <= mm1-1; i1++) {
           u[2*i3-t3-1][2*i2-d2-1][2*i1-d1-1] += 0.5 * (z[i3][i2-1][i1-1] + z[i3-1][i2-1][i1-1]);
         }
-        for (i1 = 1; i1 <= mm1-1; i1++) {
+        for (int i1 = 1; i1 <= mm1-1; i1++) {
           u[2*i3-t3-1][2*i2-d2-1][2*i1-t1-1] += 0.25 * (z[i3  ][i2-1][i1] + z[i3  ][i2-1][i1-1]
                     + z[i3-1][i2-1][i1] + z[i3-1][i2-1][i1-1]);
         }
       }
-      for (i2 = 1; i2 <= mm2-1; i2++) {
-        for (i1 = d1; i1 <= mm1-1; i1++) {
+      for (int i2 = 1; i2 <= mm2-1; i2++) {
+        for (int i1 = d1; i1 <= mm1-1; i1++) {
           u[2*i3-t3-1][2*i2-t2-1][2*i1-d1-1] += 0.25 * (z[i3  ][i2][i1-1] + z[i3  ][i2-1][i1-1]
                     + z[i3-1][i2][i1-1] + z[i3-1][i2-1][i1-1]);
         }
-        for (i1 = 1; i1 <= mm1-1; i1++) {
+        for (int i1 = 1; i1 <= mm1-1; i1++) {
           u[2*i3-t3-1][2*i2-t2-1][2*i1-t1-1] += 0.125 * (z[i3  ][i2][i1  ] + z[i3  ][i2-1][i1  ]
                      + z[i3  ][i2][i1-1] + z[i3  ][i2-1][i1-1]
                      + z[i3-1][i2][i1  ] + z[i3-1][i2-1][i1  ]
