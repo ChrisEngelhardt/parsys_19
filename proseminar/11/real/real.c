@@ -341,14 +341,14 @@ static void setup(int *n1, int *n2, int *n3)
       ng[k][ax] = ng[k+1][ax]/2;
     }
   }
-  //openmp
+  //openmp not worthy, since lt small (8)
   for (k = lt; k >= 1; k--) {
     nx[k] = ng[k][0];
     ny[k] = ng[k][1];
     nz[k] = ng[k][2];
   }
 
-  //openmp
+  //openmp not worthy, since lt small (8)
   for (k = lt; k >= 1; k--) {
     for (ax = 0; ax < 3; ax++) {
       mi[k][ax] = 2 + ng[k][ax];
@@ -392,6 +392,9 @@ static void mg3P(double u[], double v[], double r[],
                  double a[4], double c[4], int n1, int n2, int n3)
 {
   int j, k;
+
+  // todo: openmp hard to implement, since for loops depend on ir[j] and ir[k]
+
 
   //---------------------------------------------------------------------
   // down cycle.
@@ -790,8 +793,7 @@ static void norm2u3(void *or, int n1, int n2, int n3,
 {
   double (*r)[n2][n1] = (double (*)[n2][n1])or;
 
-  double s, a;
-  int i3, i2, i1;
+  double s;
 
   double dn, max_rnmu;
 
@@ -802,11 +804,12 @@ static void norm2u3(void *or, int n1, int n2, int n3,
   max_rnmu = 0.0;
 
   double my_rnmu = 0.0;
-  for (i3 = 1; i3 < n3-1; i3++) {
-    for (i2 = 1; i2 < n2-1; i2++) {
-      for (i1 = 1; i1 < n1-1; i1++) {
-        s = s + pow(r[i3][i2][i1], 2.0);
-        a = fabs(r[i3][i2][i1]);
+  #pragma omp parallel for reduction(+:s) reduction(max : my_rnmu)
+  for (int i3 = 1; i3 < n3-1; i3++) {
+    for (int i2 = 1; i2 < n2-1; i2++) {
+      for (int i1 = 1; i1 < n1-1; i1++) {
+        s += pow(r[i3][i2][i1], 2.0);
+        double a = fabs(r[i3][i2][i1]);
         my_rnmu = (a > my_rnmu) ? a : my_rnmu;
       }
     }
@@ -846,22 +849,24 @@ static void comm3(void *ou, int n1, int n2, int n3, int kk)
 
   if (timeron) timer_start(T_comm3);
 
-  for (i3 = 1; i3 < n3-1; i3++) {
-    for (i2 = 1; i2 < n2-1; i2++) {
+  #pragma omp parallel for shared(u) 
+  for (int i3 = 1; i3 < n3-1; i3++) {
+    for (int i2 = 1; i2 < n2-1; i2++) {
       u[i3][i2][   0] = u[i3][i2][n1-2];
       u[i3][i2][n1-1] = u[i3][i2][   1];
     }
 //  }
 
 //  for (i3 = 1; i3 < n3-1; i3++) {
-    for (i1 = 0; i1 < n1; i1++) {
+    for (int i1 = 0; i1 < n1; i1++) {
       u[i3][   0][i1] = u[i3][n2-2][i1];
       u[i3][n2-1][i1] = u[i3][   1][i1];
     }
   }
 
-  for (i2 = 0; i2 < n2; i2++) {
-    for (i1 = 0; i1 < n1; i1++) {
+  #pragma omp parallel for shared(u)
+  for (int i2 = 0; i2 < n2; i2++) {
+    for (int i1 = 0; i1 < n1; i1++) {
       u[   0][i2][i1] = u[n3-2][i2][i1];
       u[n3-1][i2][i1] = u[   1][i2][i1];
     }
@@ -1055,9 +1060,10 @@ static void zran3(void *oz, int n1, int n2, int n3, int nx1, int ny1, int k)
   }
   */
 
-  for (i3 = 0; i3 < n3; i3++) {
-    for (i2 = 0; i2 < n2; i2++) {
-      for (i1 = 0; i1 < n1; i1++) {
+  #pragma omp parallel for shared(u) 
+  for (int i3 = 0; i3 < n3; i3++) {
+    for (int i2 = 0; i2 < n2; i2++) {
+      for (int i1 = 0; i1 < n1; i1++) {
         z[i3][i2][i1] = 0.0;
       }
     }
@@ -1188,12 +1194,10 @@ static void zero3(void *oz, int n1, int n2, int n3)
 {
   double (*z)[n2][n1] = (double (*)[n2][n1])oz;
 
-  int i1, i2, i3;
-
-  //openmp
-  for (i3 = 0; i3 < n3; i3++) {
-    for (i2 = 0; i2 < n2; i2++) {
-      for (i1 = 0; i1 < n1; i1++) {
+  #pragma omp parallel for shared(z)
+  for (int i3 = 0; i3 < n3; i3++) {
+    for (int i2 = 0; i2 < n2; i2++) {
+      for (int i1 = 0; i1 < n1; i1++) {
         z[i3][i2][i1] = 0.0;
       }
     }
