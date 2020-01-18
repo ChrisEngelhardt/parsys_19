@@ -1,0 +1,61 @@
+  Loading openmpi/3.1.1 for compiler gnu-4.8.5
+WARNING: Using GASNet's mpi-conduit, which exists for portability convenience.
+WARNING: This system appears to contain recognized network hardware: InfiniBand IBV
+WARNING: which is supported by a GASNet native conduit, although
+WARNING: it was not detected at configure time (missing drivers?)
+WARNING: You should *really* use the high-performance native GASNet conduit
+WARNING: if communication performance is at all important in this program run.
+Number of locales   = 1
+Number of points    = 1000000000
+Random number seed  = 1231238923
+Number of tasks     = 8 (per locale)
+Approximation of PI = 3.1416013
+
+real	0m40.504s
+user	4m21.790s
+sys	0m54.495s
+WARNING: Using GASNet's mpi-conduit, which exists for portability convenience.
+WARNING: This system appears to contain recognized network hardware: InfiniBand IBV
+WARNING: which is supported by a GASNet native conduit, although
+WARNING: it was not detected at configure time (missing drivers?)
+WARNING: You should *really* use the high-performance native GASNet conduit
+WARNING: if communication performance is at all important in this program run.
+Number of locales   = 2
+Number of points    = 1000000000
+Random number seed  = 1231238923
+Number of tasks     = 8 (per locale)
+Approximation of PI = 3.1415556
+
+real	0m21.646s
+user	2m16.154s
+sys	0m28.737s
+WARNING: Using GASNet's mpi-conduit, which exists for portability convenience.
+WARNING: This system appears to contain recognized network hardware: InfiniBand IBV
+WARNING: which is supported by a GASNet native conduit, although
+WARNING: it was not detected at configure time (missing drivers?)
+WARNING: You should *really* use the high-performance native GASNet conduit
+WARNING: if communication performance is at all important in this program run.
+Number of locales   = 4
+Number of points    = 1000000000
+Random number seed  = 1231238923
+Number of tasks     = 8 (per locale)
+Approximation of PI = 3.1415746
+
+real	0m11.497s
+user	1m8.874s
+sys	0m16.014s
+WARNING: Using GASNet's mpi-conduit, which exists for portability convenience.
+WARNING: This system appears to contain recognized network hardware: InfiniBand IBV
+WARNING: which is supported by a GASNet native conduit, although
+WARNING: it was not detected at configure time (missing drivers?)
+WARNING: You should *really* use the high-performance native GASNet conduit
+WARNING: if communication performance is at all important in this program run.
+Number of locales   = 8
+Number of points    = 1000000000
+Random number seed  = 1231238923
+Number of tasks     = 8 (per locale)
+Approximation of PI = 3.1415915
+
+real	0m6.685s
+user	0m35.597s
+sys	0m9.298s
