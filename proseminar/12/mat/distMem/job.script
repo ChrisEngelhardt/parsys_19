@@ -1,0 +1,36 @@
+#!/bin/bash
+# Execute job in the queue "std.q" unless you have special requirements.
+#$ -q std.q
+
+# The batch system should use the current directory as working directory.
+#$ -cwd
+
+# Name your job. Unless you use the -o and -e options, output will
+# go to a unique file name.ojob_id for each job.
+#$ -N my_test_job
+
+# Redirect output stream to this file.
+#$ -o output_openmpi.dat
+
+# Join the error stream to the output stream.
+#$ -j yes
+
+
+#$ -l exclusive=true
+
+#$ -pe openmpi-8perhost 32
+
+# load module
+module load gcc
+module load openmpi/3.1.1
+
+export CHPL_COMM=gasnet
+export CHPL_LAUNCHER=gasnetrun_mpi
+export CHPL_COMM_SUBSTRATE=mpi
+
+for threads in 1 2 4 8
+do
+ echo $threads
+ export CHPL_RT_NUM_THREADS_PER_LOCALE=8
+ ./distMemMatMul -nl $threads
+done
